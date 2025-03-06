@@ -1,4 +1,4 @@
-name: 'GitHub / Asana integration'
+name: 'Integrate GitHub and Asana'
 description: 'Asana Github Actions'
 inputs:
   asana-pat:
