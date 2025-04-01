@@ -62,7 +62,9 @@ async function action() {
     ACTION = core.getInput('action', {required: true}),
     TRIGGER_PHRASE = core.getInput('trigger-phrase') || '',
     PULL_REQUEST = github.context.payload.pull_request,
-    REGEX_STRING = `${TRIGGER_PHRASE}(?:\s*)https:\\/\\/app.asana.com\\/\\d\\/\\d+\\/project\\/(?<project>\\d+)\\/task\\/(?<task>\\d+)`,
+    V0_REGEX_STRING = `${TRIGGER_PHRASE}(?:\s*)https:\\/\\/app.asana.com\\/(\\d+)\\/(?<v0_project>\\d+)\\/(?<v0_task>\\d+)`,
+    V1_REGEX_STRING = `${TRIGGER_PHRASE}(?:\s*)https:\\/\\/app.asana.com\\/\\d\\/\\d+\\/project\\/(?<v1_project>\\d+)\\/task\\/(?<v1_task>\\d+)`,
+    REGEX_STRING = `(${V0_REGEX_STRING})|(${V1_REGEX_STRING})`,
     REGEX = new RegExp(REGEX_STRING,'g')
   ;
 
@@ -76,7 +78,7 @@ async function action() {
   console.info('looking in body', PULL_REQUEST.body, 'regex', REGEX_STRING);
   let foundAsanaTasks = [];
   while ((parseAsanaURL = REGEX.exec(PULL_REQUEST.body)) !== null) {
-    const taskId = parseAsanaURL.groups.task;
+    const taskId = parseAsanaURL.groups.v0_task || parseAsanaURL.groups.v1_task;
     if (!taskId) {
       core.error(`Invalid Asana task URL after the trigger phrase ${TRIGGER_PHRASE}`);
       continue;
